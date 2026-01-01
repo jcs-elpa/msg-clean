@@ -1,6 +1,6 @@
 ;;; message-clean-mode.el --- Keep messages buffer clean  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2022-2025  Shen, Jen-Chieh
+;; Copyright (C) 2022-2026  Shen, Jen-Chieh
 ;; Created date 2022-02-17 16:16:50
 
 ;; Author: Shen, Jen-Chieh <jcs090218@gmail.com>
