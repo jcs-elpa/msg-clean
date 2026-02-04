@@ -7,7 +7,7 @@
 (website-url "https://github.com/jcs-elpa/msg-clean")
 (keywords "convenience" "messages" "clean")
 
-(package-file "message-clean-mode.el")
+(package-file "msg-clean.el")
 
 (script "test" "echo \"Error: no test specified\" && exit 1")
 
