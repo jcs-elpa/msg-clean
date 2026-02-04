@@ -1,10 +1,10 @@
-;;; message-clean-mode.el --- Keep messages buffer clean  -*- lexical-binding: t; -*-
+;;; msg-clean.el --- Keep messages buffer clean  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2022-2026  Shen, Jen-Chieh
 ;; Created date 2022-02-17 16:16:50
 
 ;; Author: Shen, Jen-Chieh <jcs090218@gmail.com>
-;; URL: https://github.com/jcs-elpa/message-clean-mode
+;; URL: https://github.com/jcs-elpa/msg-clean
 ;; Version: 0.1.0
 ;; Package-Requires: ((emacs "26.1") (msgu "0.1.0"))
 ;; Keywords: convenience messages clean
@@ -36,65 +36,65 @@
   (require 'cl-lib)
   (require 'subr-x))
 
-(defgroup message-clean nil
+(defgroup msg-clean nil
   "Keep messages buffer clean."
-  :prefix "message-clean-mode-"
+  :prefix "msg-clean-"
   :group 'convenience
-  :link '(url-link :tag "Repository" "https://github.com/jcs-elpa/message-clean-mode"))
+  :link '(url-link :tag "Repository" "https://github.com/jcs-elpa/msg-clean"))
 
-(defcustom message-clean-mode-mute-commands
+(defcustom msg-clean-mute-commands
   nil
   "List of commands to mute completely."
   :type '(list symbol)
-  :group 'message-clean)
+  :group 'msg-clean)
 
-(defcustom message-clean-mode-echo-commands
+(defcustom msg-clean-echo-commands
   nil
   "List of commands to inhibit log to *Messages* buffer."
   :type '(list symbol)
-  :group 'message-clean)
+  :group 'msg-clean)
 
-(defcustom message-clean-mode-minor-mode nil
+(defcustom msg-clean-minor-mode nil
   "Echo/Mute to all minor-mode."
   :type '(choice (const :tag "Mute minor-mode enable/disable" mute)
                  (const :tag "Echo minor-mode enable/disable" echo)
                  (const :tag "Does nothing" nil))
-  :group 'message-clean)
+  :group 'msg-clean)
 
 ;;
 ;; (@* "Util" )
 ;;
 
-(defun message-clean-mode--ad-add (lst fnc)
+(defun msg-clean--ad-add (lst fnc)
   "Do `advice-add' for LST with FNC."
   (dolist (cmd lst) (advice-add cmd :around fnc)))
 
-(defun message-clean-mode--ad-remove (lst fnc)
+(defun msg-clean--ad-remove (lst fnc)
   "Do `advice-remove' for LST with FNC."
   (dolist (cmd lst) (advice-remove cmd fnc)))
 
-(defun message-clean-mode--function-symbol (symbol)
+(defun msg-clean--function-symbol (symbol)
   "Return function name by SYMBOL."
   (cl-case symbol
-    (`mute #'message-clean-mode--mute)
-    (`echo #'message-clean-mode--echo)))
+    (`mute #'msg-clean--mute)
+    (`echo #'msg-clean--echo)))
 
 ;;
 ;; (@* "Util" )
 ;;
 
-(defun message-clean-mode--re-enable-mode (modename)
+(defun msg-clean--re-enable-mode (modename)
   "Re-enable the MODENAME."
   (msgu-silent
     (funcall-interactively modename -1) (funcall-interactively modename 1)))
 
-(defun message-clean-mode--re-enable-mode-if-was-enabled (modename)
+(defun msg-clean--re-enable-mode-if-was-enabled (modename)
   "Re-enable the MODENAME if was enabled."
   (when (boundp modename)
-    (when (symbol-value modename) (message-clean-mode--re-enable-mode modename))
+    (when (symbol-value modename) (msg-clean--re-enable-mode modename))
     (symbol-value modename)))
 
-(defun message-clean-mode--listify (obj)
+(defun msg-clean--listify (obj)
   "Turn OBJ to list."
   (if (listp obj) obj (list obj)))
 
@@ -102,79 +102,79 @@
 ;; (@* "Core" )
 ;;
 
-(defun message-clean-mode--apply (inter fnc &rest args)
+(defun msg-clean--apply (inter fnc &rest args)
   "Apply (FNC, ARGS); INTER non-nil call it interactively."
   (if inter
       (apply #'funcall-interactively (append (list fnc) args))
     (apply fnc args)))
 
-(defun message-clean-mode--mute (fnc &rest args)
+(defun msg-clean--mute (fnc &rest args)
   "Mute any commands (FNC, ARGS)."
   (msgu-silent
     (let ((inter (called-interactively-p 'interactive)))
-      (apply #'message-clean-mode--apply inter fnc args))))
+      (apply #'msg-clean--apply inter fnc args))))
 
-(defun message-clean-mode--echo (fnc &rest args)
+(defun msg-clean--echo (fnc &rest args)
   "Mute any commands (FNC, ARGS)."
   (msgu-inhibit-log
     (let ((inter (called-interactively-p 'interactive)))
-      (apply #'message-clean-mode--apply inter fnc args))))
+      (apply #'msg-clean--apply inter fnc args))))
 
-(defun message-clean-mode--minor-mode-ad-add (&rest _)
+(defun msg-clean--minor-mode-ad-add (&rest _)
   "Apply `advice-add' mute/echo to all minor-mode."
-  (when-let* ((func (message-clean-mode--function-symbol message-clean-mode-minor-mode)))
-    (message-clean-mode--ad-add minor-mode-list func)))
+  (when-let* ((func (msg-clean--function-symbol msg-clean-minor-mode)))
+    (msg-clean--ad-add minor-mode-list func)))
 
-(defun message-clean-mode--minor-mode-ad-remove (&rest _)
+(defun msg-clean--minor-mode-ad-remove (&rest _)
   "Apply `advice-remove' mute/echo to all minor-mode."
-  (when-let* ((func (message-clean-mode--function-symbol message-clean-mode-minor-mode)))
-    (message-clean-mode--ad-remove minor-mode-list func)))
+  (when-let* ((func (msg-clean--function-symbol msg-clean-minor-mode)))
+    (msg-clean--ad-remove minor-mode-list func)))
 
-(defun message-clean-mode--enable ()
-  "Enable function `message-clean-mode'."
-  (message-clean-mode--ad-add message-clean-mode-mute-commands #'message-clean-mode--mute)
-  (message-clean-mode--ad-add message-clean-mode-echo-commands #'message-clean-mode--echo)
-  (message-clean-mode--minor-mode-ad-add)
-  (advice-add 'add-minor-mode :after #'message-clean-mode--minor-mode-ad-add))
+(defun msg-clean--enable ()
+  "Enable function `msg-clean-mode'."
+  (msg-clean--ad-add msg-clean-mute-commands #'msg-clean--mute)
+  (msg-clean--ad-add msg-clean-echo-commands #'msg-clean--echo)
+  (msg-clean--minor-mode-ad-add)
+  (advice-add 'add-minor-mode :after #'msg-clean--minor-mode-ad-add))
 
-(defun message-clean-mode--disable ()
-  "Disable function `message-clean-mode'."
-  (message-clean-mode--ad-remove message-clean-mode-mute-commands #'message-clean-mode--mute)
-  (message-clean-mode--ad-remove message-clean-mode-echo-commands #'message-clean-mode--echo)
-  (advice-remove 'add-minor-mode #'message-clean-mode--minor-mode-ad-add)
-  (message-clean-mode--minor-mode-ad-remove))
+(defun msg-clean--disable ()
+  "Disable function `msg-clean-mode'."
+  (msg-clean--ad-remove msg-clean-mute-commands #'msg-clean--mute)
+  (msg-clean--ad-remove msg-clean-echo-commands #'msg-clean--echo)
+  (advice-remove 'add-minor-mode #'msg-clean--minor-mode-ad-add)
+  (msg-clean--minor-mode-ad-remove))
 
 ;;;###autoload
-(define-minor-mode message-clean-mode
-  "Minor mode `message-clean-mode'."
+(define-minor-mode msg-clean-mode
+  "Minor mode `msg-clean-mode'."
   :global t
-  :require 'message-clean-mode
-  :group 'message-clean
-  (if message-clean-mode (message-clean-mode--enable) (message-clean-mode--disable)))
+  :require 'msg-clean-mode
+  :group 'msg-clean
+  (if msg-clean-mode (msg-clean--enable) (msg-clean--disable)))
 
 ;;
 ;; (@* "Users" )
 ;;
 
-(defun message-clean-mode--add-commands (command lst)
+(defun msg-clean--add-commands (command lst)
   "Add COMMAND to LST."
-  (let ((commands (message-clean-mode--listify command)))
+  (let ((commands (msg-clean--listify command)))
     (nconc lst commands)
-    (message-clean-mode--re-enable-mode-if-was-enabled #'message-clean-mode)))
+    (msg-clean--re-enable-mode-if-was-enabled #'msg-clean-mode)))
 
 ;;;###autoload
-(defun message-clean-mode-add-echo-commands (command)
+(defun msg-clean-add-echo-commands (command)
   "Add COMMAND to echo list."
-  (message-clean-mode--add-commands command message-clean-mode-echo-commands))
+  (msg-clean--add-commands command msg-clean-echo-commands))
 
 ;;;###autoload
-(defun message-clean-mode-add-mute-commands (command)
+(defun msg-clean-add-mute-commands (command)
   "Add COMMAND to mute list."
-  (message-clean-mode--add-commands command message-clean-mode-mute-commands))
+  (msg-clean--add-commands command msg-clean-mute-commands))
 
-(provide 'message-clean-mode)
+(provide 'msg-clean-mode)
 ;; Local Variables:
 ;; coding: utf-8
 ;; no-byte-compile: t
 ;; End:
-;;; message-clean-mode.el ends here
+;;; msg-clean.el ends here

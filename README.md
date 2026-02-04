@@ -1,10 +1,10 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![JCS-ELPA](https://raw.githubusercontent.com/jcs-emacs/badges/master/elpa/v/message-clean-mode.svg)](https://jcs-emacs.github.io/jcs-elpa/#/message-clean-mode)
+[![JCS-ELPA](https://raw.githubusercontent.com/jcs-emacs/badges/master/elpa/v/msg-clean.svg)](https://jcs-emacs.github.io/jcs-elpa/#/msg-clean)
 
-# message-clean-mode
+# msg-clean
 > Keep messages buffer clean
 
-[![CI](https://github.com/jcs-elpa/message-clean-mode/actions/workflows/test.yml/badge.svg)](https://github.com/jcs-elpa/message-clean-mode/actions/workflows/test.yml)
+[![CI](https://github.com/jcs-elpa/msg-clean/actions/workflows/test.yml/badge.svg)](https://github.com/jcs-elpa/msg-clean/actions/workflows/test.yml)
 
 Simple minor-mode to keep your `*Messages*` buffer clean, without Emacs spamming
 a bunch of command messages.
@@ -15,18 +15,18 @@ for debug log.*
 ## 💾 Quickstart
 
 ```el
-(leaf message-clean-mode
-  :hook (after-init-hook . message-clean-mode)
+(use-package msg-clean
+  :hook (after-init-hook . msg-clean)
   :init
-  (setq message-clean-mode-mute-commands '(push-mark set-mark-command)
-        message-clean-mode-echo-commands '(mwheel-scroll
-                                           previous-line next-line
-                                           mark-whole-buffer
-                                           indent-region
-                                           isearch-done
-                                           undefined
-                                           toggle-truncate-lines)
-        message-clean-mode-minor-mode 'echo))  ; echo minor mode only
+  (setq msg-clean-mute-commands '(push-mark set-mark-command)
+        msg-clean-echo-commands '(mwheel-scroll
+                                  previous-line next-line
+                                  mark-whole-buffer
+                                  indent-region
+                                  isearch-done
+                                  undefined
+                                  toggle-truncate-lines)
+        msg-clean-minor-mode 'echo))  ; echo minor mode only
 ```
 
 ## 🛠️ Contribute
