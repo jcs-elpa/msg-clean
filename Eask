@@ -1,10 +1,10 @@
 ;; -*- mode: eask; lexical-binding: t -*-
 
-(package "message-clean-mode"
+(package "msg-clean"
 		 "0.1.0"
 		 "Keep messages buffer clean")
 
-(website-url "https://github.com/jcs-elpa/message-clean-mode")
+(website-url "https://github.com/jcs-elpa/msg-clean")
 (keywords "convenience" "messages" "clean")
 
 (package-file "message-clean-mode.el")
